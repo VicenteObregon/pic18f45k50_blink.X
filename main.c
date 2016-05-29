@@ -20,7 +20,20 @@
 #pragma config EBTR0    = OFF
 #pragma config EBTRB    = OFF
 
+void interrupt isr(void) {
+    if (TMR0IF) {
+        LATDbits.LATD1 = ~LATDbits.LATD1;
+        TMR0IF = 0;
+        return;
+    }
+}
+
 void main(void) {
+    TRISD = 0;
+    GIEH = 1;
+    TMR0IE = 1;
+    T0CON = 0b10000000;
+    LATDbits.LATD1 = 0;
     while (1) {
     }
 }
