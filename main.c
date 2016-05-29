@@ -22,18 +22,26 @@
 
 void interrupt isr(void) {
     if (TMR0IF) {
-        LATDbits.LATD1 = ~LATDbits.LATD1;
+        LATD0 = ~LATD0;
         TMR0IF = 0;
+        return;
+    }
+    if (TMR1IF) {
+        LATD1 = ~LATD1;
+        TMR1IF = 0;
         return;
     }
 }
 
 void main(void) {
     TRISD = 0;
+    LATD = 0;
+    GIEL = 1;
     GIEH = 1;
-    TMR0IE = 1;
     T0CON = 0b10000000;
-    LATDbits.LATD1 = 0;
+    TMR0IE = 1;
+    T1CON = 0b00000001;
+    TMR1IE = 1;
     while (1) {
     }
 }
