@@ -21,17 +21,17 @@
 #pragma config EBTRB    = OFF
 
 void interrupt isr(void) {
-    if (TMR0IF) {
+    if (TMR0IE && TMR0IF) {
         LATD0 = ~LATD0;
         TMR0IF = 0;
         return;
     }
-    if (TMR1IF) {
+    if (TMR1IE && TMR1IF) {
         LATD1 = ~LATD1;
         TMR1IF = 0;
         return;
     }
-    if (TMR2IF) {
+    if (TMR2IE && TMR2IF) {
         LATD2 = ~LATD2;
         TMR2IF = 0;
         return;
