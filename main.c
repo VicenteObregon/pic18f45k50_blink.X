@@ -7,32 +7,39 @@
 
 #include <xc.h>
 
-#pragma config PLLSEL   = PLL3X
-#pragma config FOSC     = INTOSCIO
-#pragma config nPWRTEN  = OFF
-#pragma config WDTEN    = OFF
-#pragma config CCP2MX   = RB3
-#pragma config STVREN   = OFF
-#pragma config CP0      = OFF
-#pragma config CPB      = OFF
-#pragma config WRT0     = OFF
-#pragma config WRTC     = OFF
-#pragma config EBTR0    = OFF
-#pragma config EBTRB    = OFF
+#pragma config PLLSEL = PLL3X // 300000
+#pragma config CFGPLLEN = ON
+#pragma config CPUDIV = NOCLKDIV
+#pragma config FOSC = INTOSCIO // 300001
+#pragma config nPWRTEN = OFF // 300002
+#pragma config BOREN = ON
+#pragma config WDTEN = OFF // 300003
+#pragma config MCLRE = OFF // 300005
+#pragma config STVREN = ON // 300006
+#pragma config CONFIG5L = 0x0F // 300008
+#pragma config CONFIG5H = 0xC0 // 300009
+#pragma config CONFIG6L = 0x0F // 30000A
+#pragma config CONFIG6H = 0xE0 // 30000B
+#pragma config CONFIG7L = 0x0F // 30000C
+#pragma config CONFIG7H = 0x40 // 30000D
+
+volatile unsigned long g_tick0 = 0;
+volatile unsigned long g_tick1 = 0;
+volatile unsigned long g_tick2 = 0;
 
 void interrupt isr(void) {
     if (TMR0IE && TMR0IF) {
-        LATD0 = ~LATD0;
+        ++g_tick0;
         TMR0IF = 0;
         return;
     }
     if (TMR1IE && TMR1IF) {
-        LATD1 = ~LATD1;
+        ++g_tick1;
         TMR1IF = 0;
         return;
     }
     if (TMR2IE && TMR2IF) {
-        LATD2 = ~LATD2;
+        ++g_tick2;
         TMR2IF = 0;
         return;
     }
@@ -41,14 +48,19 @@ void interrupt isr(void) {
 void main(void) {
     TRISD = 0;
     LATD = 0;
+    OSCCON = 0b11111100;
     GIEL = 1;
     GIEH = 1;
     T0CON = 0b10000000;
     TMR0IE = 1;
     T1CON = 0b00000001;
     TMR1IE = 1;
-    T2CON = 0b00000100;
+    PR2 = 250;
+    T2CON = 0b01011101;
     TMR2IE = 1;
     while (1) {
+        LATD0 = (g_tick0 / 1000) % 2;
+        LATD1 = (g_tick1 / 1000) % 2;
+        LATD2 = (g_tick2 / 1000) % 2;
     }
 }
