@@ -31,6 +31,11 @@ void interrupt isr(void) {
         TMR1IF = 0;
         return;
     }
+    if (TMR2IF) {
+        LATD2 = ~LATD2;
+        TMR2IF = 0;
+        return;
+    }
 }
 
 void main(void) {
@@ -42,6 +47,8 @@ void main(void) {
     TMR0IE = 1;
     T1CON = 0b00000001;
     TMR1IE = 1;
+    T2CON = 0b00000100;
+    TMR2IE = 1;
     while (1) {
     }
 }
